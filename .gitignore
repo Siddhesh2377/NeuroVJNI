@@ -1,2 +1,2 @@
 build
-smollm/src/main/jniLibs
+smollm/src/main/jniLibs/*
