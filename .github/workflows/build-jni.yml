@@ -14,11 +14,12 @@ jobs:
     env:
       ANDROID_NDK_VERSION: 29.0.13599879
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-      ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/29.0.13599879
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (with submodules)
         uses: actions/checkout@v3
+        with:
+          submodules: recursive  # 🔥 this is required to fetch llama.cpp
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -42,14 +43,12 @@ jobs:
             "ndk;${ANDROID_NDK_VERSION}" \
             "platforms;android-35" \
             "build-tools;35.0.0" \
-            "platform-tools" \
-            "tools"
+            "platform-tools"
 
-      - name: Set ANDROID_NDK_HOME in environment
+      - name: Set ANDROID_NDK_HOME environment
         run: |
-          NDK_PATH=$(find $ANDROID_SDK_ROOT/ndk -type d -name "${ANDROID_NDK_VERSION}" | head -n 1)
-          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
-          echo "Using NDK at $NDK_PATH"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION" >> $GITHUB_ENV
+          echo "✅ Using NDK at $ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
 
       - name: Make build script executable
         run: chmod +x build_android_libs.sh
