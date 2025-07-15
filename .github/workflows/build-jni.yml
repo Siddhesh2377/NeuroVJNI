@@ -15,50 +15,58 @@ jobs:
       ANDROID_NDK_VERSION: 29.0.13599879
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
       ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/29.0.13599879
-      CMAKE_VERSION: 3.22.1
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Download Android command-line tools
-        run: |
-          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-          curl -Lo sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip -q sdk.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
-          mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+      - name: Install CMake and Ninja
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build unzip zip
 
-      - name: Install Android SDK & NDK
+      - name: Download Android CLI Tools
         run: |
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=${ANDROID_SDK_ROOT} \
-            "ndk;${ANDROID_NDK_VERSION}" "platforms;android-35" "build-tools;35.0.0"
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          curl -Lo sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip -q sdk-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
 
-      - name: Set ANDROID_NDK_HOME
+      - name: Install SDK, NDK, and Build Tools
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+            "ndk;${ANDROID_NDK_VERSION}" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "platform-tools" \
+            "tools"
+
+      - name: Set ANDROID_NDK_HOME in environment
         run: echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
-
-      - name: Install CMake + Ninja
-        run: sudo apt-get install cmake ninja-build -y
 
       - name: Make build script executable
         run: chmod +x build_android_libs.sh
 
-      - name: Build all .so files
+      - name: Build all JNI libraries
         run: ./build_android_libs.sh
 
-      - name: Zip all .so outputs
+      - name: Zip jniLibs folder
         run: |
           cd smollm/src/main
           zip -r jniLibs.zip jniLibs
 
-      - name: Archive .so output
+      - name: Upload jniLibs folder
         uses: actions/upload-artifact@v4
         with:
-          name: jniLibs
+          name: jniLibs-folder
           path: smollm/src/main/jniLibs/
 
+      - name: Upload jniLibs.zip archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: jniLibs-zip
+          path: smollm/src/main/jniLibs.zip
