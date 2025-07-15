@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_NDK_VERSION: 25.2.9519653
+      ANDROID_NDK_VERSION: 29.0.13599879
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-      ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/25.2.9519653
+      ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/29.0.13599879
       CMAKE_VERSION: 3.22.1
 
     steps:
@@ -37,7 +37,7 @@ jobs:
       - name: Install Android SDK & NDK
         run: |
           yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=${ANDROID_SDK_ROOT} \
-            "ndk;${ANDROID_NDK_VERSION}" "platforms;android-26" "build-tools;34.0.0"
+            "ndk;${ANDROID_NDK_VERSION}" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set ANDROID_NDK_HOME
         run: echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
