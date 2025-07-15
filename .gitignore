@@ -1,2 +1,6 @@
 build
-/smollm/src/main/jniLibs/
+smollm/src/main/jniLibs/
+smollm/src/main/jniLibs/arm64-v8a/
+smollm/src/main/jniLibs/armeabi-v7a/
+smollm/src/main/jniLibs/x86/
+smollm/src/main/jniLibs/x86_64/
