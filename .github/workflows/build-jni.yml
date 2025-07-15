@@ -14,7 +14,6 @@ jobs:
     env:
       ANDROID_NDK_VERSION: 25.2.9519653
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-      ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/${{ env.ANDROID_NDK_VERSION }}
       CMAKE_VERSION: 3.22.1
 
     steps:
@@ -39,7 +38,10 @@ jobs:
           yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=${ANDROID_SDK_ROOT} \
             "ndk;${ANDROID_NDK_VERSION}" "platforms;android-26" "build-tools;34.0.0"
 
-      - name: Install CMake
+      - name: Set ANDROID_NDK_HOME
+        run: echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
+
+      - name: Install CMake + Ninja
         run: sudo apt-get install cmake ninja-build -y
 
       - name: Make build script executable
