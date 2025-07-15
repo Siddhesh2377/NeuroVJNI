@@ -4,7 +4,7 @@ if(NOT DEFINED ANDROID_ABI)
     message(FATAL_ERROR "ANDROID_ABI is not set. You must use the Android toolchain file.")
 endif()
 
-set(LLAMA_DIR "../../../../llama.cpp")
+set(LLAMA_DIR "../../../../external/llama.cpp")
 set(GGML_DIR ${LLAMA_DIR}/ggml)
 set(COMMON_DIR ${LLAMA_DIR}/common)
 set(VENDOR_DIR ${LLAMA_DIR}/vendor)
