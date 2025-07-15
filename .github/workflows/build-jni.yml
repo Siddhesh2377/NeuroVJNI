@@ -50,8 +50,14 @@ jobs:
       - name: Build all .so files
         run: ./build_android_libs.sh
 
+      - name: Zip all .so outputs
+        run: |
+          cd smollm/src/main
+          zip -r jniLibs.zip jniLibs
+
       - name: Archive .so output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jniLibs
           path: smollm/src/main/jniLibs/
+
