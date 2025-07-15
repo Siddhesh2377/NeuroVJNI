@@ -1,0 +1,55 @@
+name: Build JNI Libs
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-libs:
+    name: Build JNI .so libraries
+    runs-on: ubuntu-latest
+
+    env:
+      ANDROID_NDK_VERSION: 25.2.9519653
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+      ANDROID_NDK_HOME: ${{ github.workspace }}/android-sdk/ndk/${{ env.ANDROID_NDK_VERSION }}
+      CMAKE_VERSION: 3.22.1
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Android command-line tools
+        run: |
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          curl -Lo sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip -q sdk.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+          mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+
+      - name: Install Android SDK & NDK
+        run: |
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=${ANDROID_SDK_ROOT} \
+            "ndk;${ANDROID_NDK_VERSION}" "platforms;android-26" "build-tools;34.0.0"
+
+      - name: Install CMake
+        run: sudo apt-get install cmake ninja-build -y
+
+      - name: Make build script executable
+        run: chmod +x build_android_libs.sh
+
+      - name: Build all .so files
+        run: ./build_android_libs.sh
+
+      - name: Archive .so output
+        uses: actions/upload-artifact@v3
+        with:
+          name: jniLibs
+          path: smollm/src/main/jniLibs/
