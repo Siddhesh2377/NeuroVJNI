@@ -46,7 +46,10 @@ jobs:
             "tools"
 
       - name: Set ANDROID_NDK_HOME in environment
-        run: echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
+        run: |
+          NDK_PATH=$(find $ANDROID_SDK_ROOT/ndk -type d -name "${ANDROID_NDK_VERSION}" | head -n 1)
+          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+          echo "Using NDK at $NDK_PATH"
 
       - name: Make build script executable
         run: chmod +x build_android_libs.sh
